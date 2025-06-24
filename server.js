@@ -15,18 +15,17 @@ app.get('/download', async (req, res) => {
     });
 
     const page = await browser.newPage();
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36');
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64)');
     await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
 
     const json = await page.evaluate(() => {
       const script = document.querySelector('#__NEXT_DATA__');
-      if (!script) return null;
-      return JSON.parse(script.innerText);
+      return script ? JSON.parse(script.innerText) : null;
     });
 
     await browser.close();
 
-    if (!json) return res.status(500).json({ error: 'Could not load video data' });
+    if (!json) return res.status(500).json({ error: 'Video data not found' });
 
     const videoData = json.props?.pageProps?.noteData;
 
@@ -43,4 +42,12 @@ app.get('/download', async (req, res) => {
 
     return res.json(result);
   } catch (err) {
-    if (browse
+    if (browser) await browser.close();
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
+});
