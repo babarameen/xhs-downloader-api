@@ -11,12 +11,12 @@ app.get('/download', async (req, res) => {
   let browser;
   try {
     browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
 
     const page = await browser.newPage();
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64)');
-    await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
+    await page.setUserAgent('Mozilla/5.0');
+    await page.goto(url, { waitUntil: 'networkidle2' });
 
     const json = await page.evaluate(() => {
       const script = document.querySelector('#__NEXT_DATA__');
@@ -43,11 +43,10 @@ app.get('/download', async (req, res) => {
     return res.json(result);
   } catch (err) {
     if (browser) await browser.close();
-    console.error(err);
     res.status(500).json({ error: err.message });
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
